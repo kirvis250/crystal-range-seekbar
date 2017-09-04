@@ -638,11 +638,15 @@ public class CrystalSeekbar extends View {
     private Thumb evalPressedThumb(float touchX){
         Thumb result = null;
 
-        boolean minThumbPressed = isInThumbRange(touchX, normalizedMinValue);
-        if (minThumbPressed) {
+       // boolean minThumbPressed = isInThumbRange(touchX, normalizedMinValue);
+
+       // normalizedToScreen(normalizedMinValue);
+
+
+      //  if (minThumbPressed) {
             // if both thumbs are pressed (they lie on top of each other), choose the one with more room to drag. this avoids "stalling" the thumbs in a corner, not being able to drag them apart anymore.
             result = Thumb.MIN;
-        }
+       // }
         return result;
     }
 
