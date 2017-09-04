@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: 'maven-publish'
 
 ext {
     // Where you will see your artifact in Bintray's web interface
@@ -52,5 +54,46 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.1'
 }
 
-apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
-apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/bintrayv1.gradle'
+def libraryGroupId = 'lt.farmis.libraries'
+def libraryArtifactId = 'crystalrangeseekbar'
+def libraryVersion = '1.0.0'
+
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    baseName = libraryArtifactId
+    from android.sourceSets.main.java.srcDirs
+}
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId libraryGroupId
+            version libraryVersion
+            artifactId libraryArtifactId
+            artifact(androidSourcesJar)
+            artifact("$buildDir/outputs/aar/crystalrangeseekbar-release.aar")
+        }
+    }
+}
+
+artifactory {
+    contextUrl = 'http://artifactory.farmis.lt/artifactory'
+    publish {
+        repository {
+            repoKey = 'android-libraries'
+
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+            username = properties.getProperty('artifactory_username')
+            password = properties.getProperty('artifactory_password')
+        }
+        defaults {
+            publications('aar')
+            publishArtifacts = true
+
+            properties = ['qa.level': 'basic', 'q.os': 'android', 'dev.team': 'core']
+            publishPom = true
+        }
+    }
+}

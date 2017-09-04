@@ -97,8 +97,8 @@ public class CrystalRangeSeekbar extends View {
     private Bitmap rightThumb;
     private Bitmap rightThumbPressed;
     private Thumb pressedThumb;
-    private double normalizedMinValue = 0d;
-    private double normalizedMaxValue = 100d;
+    protected double normalizedMinValue = 0d;
+    protected double normalizedMaxValue = 100d;
     private int pointerIndex;
     private RectF _rect;
     private Paint _paint;
@@ -735,19 +735,32 @@ public class CrystalRangeSeekbar extends View {
     private Thumb evalPressedThumb(float touchX){
         Thumb result = null;
 
-        boolean minThumbPressed = isInThumbRange(touchX, normalizedMinValue);
-        boolean maxThumbPressed = isInThumbRange(touchX, normalizedMaxValue);
-        if (minThumbPressed && maxThumbPressed) {
-            // if both thumbs are pressed (they lie on top of each other), choose the one with more room to drag. this avoids "stalling" the thumbs in a corner, not being able to drag them apart anymore.
-            result = (touchX / getWidth() > 0.5f) ? Thumb.MIN : Thumb.MAX;
+        float thumbPosMin = normalizedToScreen(normalizedMinValue);
+        float thumbPosMax = normalizedToScreen(normalizedMaxValue);
+
+
+        float distMin = Math.abs(thumbPosMin - touchX);
+        float distMax = Math.abs(thumbPosMax - touchX);
+
+        if (distMin < distMax || touchX < thumbPosMin) {
+            return Thumb.MIN;
+        } else {
+            return Thumb.MAX;
         }
-        else if(minThumbPressed){
-            result = Thumb.MIN;
-        }
-        else if(maxThumbPressed){
-            result = Thumb.MAX;
-        }
-        return result;
+
+      //  boolean minThumbPressed = isInThumbRange(touchX, normalizedMinValue);
+      //  boolean maxThumbPressed = isInThumbRange(touchX, normalizedMaxValue);
+//        if (true) {
+//            // if both thumbs are pressed (they lie on top of each other), choose the one with more room to drag. this avoids "stalling" the thumbs in a corner, not being able to drag them apart anymore.
+//            result = (touchX / getWidth() < 0.5f) ? Thumb.MIN : Thumb.MAX;
+//        }
+//        else if(minThumbPressed){
+//            result = Thumb.MIN;
+//        }
+//        else if(maxThumbPressed){
+//            result = Thumb.MAX;
+//        }
+      //  return result;
     }
 
     private boolean isInThumbRange(float touchX, double normalizedThumbValue){
@@ -768,7 +781,7 @@ public class CrystalRangeSeekbar extends View {
         mIsDragging = false;
     }
 
-    private float normalizedToScreen(double normalizedCoord){
+    protected float normalizedToScreen(double normalizedCoord){
         float width = getWidth() - (barPadding * 2);
         return (float) normalizedCoord / 100f * width;
     }
